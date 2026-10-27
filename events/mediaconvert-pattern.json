@@ -1,0 +1,10 @@
+{
+  "source": ["aws.mediaconvert"],
+  "detail-type": ["MediaConvert Job State Change"],
+  "detail": {
+    "status": ["COMPLETE", "ERROR", "CANCELED"],
+    "userMetadata": {
+      "execution_id": [{ "exists": true }]
+    }
+  }
+}

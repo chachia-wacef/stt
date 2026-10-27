@@ -1,0 +1,64 @@
+
+################ 01_storage ################
+==> Bucket stt-poc-127214194449-eu-central-1 : création
+==> Templates MediaConvert vers s3://stt-poc-127214194449-eu-central-1/templates/
+==> Table stt-poc-tasks : création
+==> Table stt-poc-executions : création
+==> Topic SNS stt-poc-alerts
+
+==> Terminé.
+    - Bucket   : stt-poc-127214194449-eu-central-1
+    - Tables   : stt-poc-tasks, stt-poc-executions
+    - Topic SNS: arn:aws:sns:eu-central-1:127214194449:stt-poc-alerts
+    ACTION MANUELLE : ouvrir la boîte de mohamed.wacef.chachia@devoteam.com et CONFIRMER l'abonnement (message « AWS Notification - Subscription Confirmation »).
+    Sans confirmation, aucune alerte n'est reçue.
+
+################ 02_iam ################
+==> Rôle stt-poc-lambda-validate-input : création
+==> Rôle stt-poc-lambda-submit-mediaconvert : création
+==> Rôle stt-poc-lambda-submit-transcribe : création
+==> Rôle stt-poc-lambda-callback : création
+==> Rôle stt-poc-states : création
+==> Rôle stt-poc-mediaconvert : création
+==> File MediaConvert « Default »
+==> Attente de 15 s : propagation des rôles IAM
+==> Terminé.
+
+################ 03_layer ################
+==> Construction de l'archive (téléchargement d'environ 40 Mo si aucun binaire n'est fourni)
+Téléchargement : https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+  1 / 39 Mo  2 / 39 Mo  3 / 39 Mo  4 / 39 Mo  5 / 39 Mo  6 / 39 Mo  7 / 39 Mo  8 / 39 Mo  9 / 39 Mo  10 / 39 Mo  11 / 39 Mo  12 / 39 Mo  13 / 39 Mo  14 / 39 Mo  15 / 39 Mo  16 / 39 Mo  17 / 39 Mo  18 / 39 Mo  19 / 39 Mo  20 / 39 Mo  21 / 39 Mo  22 / 39 Mo  23 / 39 Mo  24 / 39 Mo  25 / 39 Mo  26 / 39 Mo  27 / 39 Mo  28 / 39 Mo  29 / 39 Mo  30 / 39 Mo  31 / 39 Mo  32 / 39 Mo  33 / 39 Mo  34 / 39 Mo  35 / 39 Mo  36 / 39 Mo  37 / 39 Mo  38 / 39 Mo  39 / 39 Mo  39 / 39 Mo
+Téléchargement : https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5
+  0 / 0 Mo
+Empreinte MD5 vérifiée.
+build/ffprobe-layer.zip : bin/ffprobe, 75 Mo, droits 0o755, zip 28 Mo
+==> Terminé. Layer : arn:aws:lambda:eu-central-1:127214194449:layer:stt-poc-ffprobe:1
+
+################ 04_lambdas ################
+==> Lambda stt-poc-validate-input : création
+==> Lambda stt-poc-submit-mediaconvert : création
+==> Lambda stt-poc-submit-transcribe : création
+==> Lambda stt-poc-callback : création
+==> Terminé. Contrôle rapide de la première Lambda :
+==>   aws lambda invoke --function-name stt-poc-validate-input --cli-binary-format raw-in-base64-out \
+==>     --payload '{"execution_id":"t1","input":"s3://stt-poc-127214194449-eu-central-1/input/inexistant.mp3"}' /tmp/out.json ; cat /tmp/out.json
+==>   (résultat attendu : une erreur InputNotFound)
+
+################ 05_state_machine ################
+==> Contrôle de la structure de la définition
+16 states, 16 reachable
+==> Groupe de logs /aws/vendedlogs/states/stt-poc-pipeline
+==> State machine stt-poc-pipeline : création
+==> Terminé. ARN : arn:aws:states:eu-central-1:127214194449:stateMachine:stt-poc-pipeline
+==> Console : https://eu-central-1.console.aws.amazon.com/states/home?region=eu-central-1#/statemachines/view/arn:aws:states:eu-central-1:127214194449:stateMachine:stt-poc-pipeline
+
+################ 06_events ################
+==> Règle stt-poc-mediaconvert-job-state
+==> Règle stt-poc-transcribe-job-state
+==> Terminé. Le pipeline est prêt : lancer scripts/run_demo.sh <fichier audio>.
+
+==> POC déployé.
+    1. Confirmer l'abonnement email SNS si ce n'est pas encore fait.
+    2. Lancer une démonstration :  scripts/run_demo.sh <fichier audio>
+    3. Panne volontaire (email) :  scripts/demo_failure.sh break  /  fix
+    4. Tout supprimer :            scripts/destroy.sh

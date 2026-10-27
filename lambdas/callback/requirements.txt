@@ -1,0 +1,2 @@
+# boto3 est fourni par le runtime Lambda Python ; listé ici pour les tests locaux.
+boto3>=1.34
